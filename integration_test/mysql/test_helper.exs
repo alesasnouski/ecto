@@ -34,6 +34,7 @@ Application.put_env(:ecto, TestRepo,
   adapter: Ecto.Adapters.MySQL,
   url: Application.get_env(:ecto, :mysql_test_url) <> "/ecto_test",
   pool: Ecto.Adapters.SQL.Sandbox,
+  overload_alarm: true,
   ownership_pool: pool)
 
 defmodule Ecto.Integration.TestRepo do
@@ -47,6 +48,7 @@ Application.put_env(:ecto, PoolRepo,
   adapter: Ecto.Adapters.MySQL,
   pool: pool,
   url: Application.get_env(:ecto, :mysql_test_url) <> "/ecto_test",
+  overload_alarm: true,
   pool_size: 10)
 
 defmodule Ecto.Integration.PoolRepo do
@@ -60,6 +62,12 @@ defmodule Ecto.Integration.PoolRepo do
     "drop database #{prefix}"
   end
 end
+
+{:ok, _} = :dbg.tracer()
+{:ok, _} = :dbg.p(:new, [:call, :timestamp])
+{:ok, _} = :dbg.tp(:sprotector_server, :ask, :_, :x)
+{:ok, _} = :dbg.tp(:sbroker, :ask, :_, :x)
+{:ok, _} = :dbg.tpl(:sprotector_server, :update, :_, :c)
 
 defmodule Ecto.Integration.Case do
   use ExUnit.CaseTemplate
