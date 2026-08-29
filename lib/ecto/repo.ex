@@ -146,7 +146,7 @@ defmodule Ecto.Repo do
       monitoring tools. `:pre` comments are rendered before the statement (e.g.
       `/* import_users */ INSERT ...`) so they survive truncation of long statements in logs;
       `:post` comments are rendered after it. Strings are embedded verbatim and therefore cannot
-      contain `/*`, `*/`, or null bytes. Because this option takes runtime values, passing it
+      contain `/*`, `*/`, or null bytes, nor start with `!`, `+`, or `M!`. Because this option takes runtime values, passing it
       disables caching for that call, making dynamic comments (such as per-request ids) safe by
       default: query operations (`all`/`update_all`/`delete_all`) skip Ecto's query cache, and
       schema operations (`insert`/`update`/`delete`/`insert_all`) make SQL adapters skip their

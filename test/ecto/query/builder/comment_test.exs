@@ -55,6 +55,27 @@ defmodule Ecto.Query.Builder.CommentTest do
     end
   end
 
+  # `/*!...*/` and `/*M!...*/` are executable comments and `/*+...*/` is an
+  # optimizer hint on MySQL/MariaDB, so these prefixes must never be able to
+  # land right after the opening `/*`.
+  test "raises on a comment starting with ! (MySQL executable comment)" do
+    assert_raise Ecto.Query.CompileError, ~r"cannot start with `!`, `\+`, or `M!`", fn ->
+      quote_and_eval(%Ecto.Query{} |> pre_comment("!40000 DROP TABLE posts"))
+    end
+  end
+
+  test "raises on a comment starting with + (MySQL optimizer hint)" do
+    assert_raise Ecto.Query.CompileError, ~r"cannot start with `!`, `\+`, or `M!`", fn ->
+      quote_and_eval(%Ecto.Query{} |> post_comment("+MAX_EXECUTION_TIME(1)"))
+    end
+  end
+
+  test "raises on a comment starting with M! (MariaDB executable comment)" do
+    assert_raise Ecto.Query.CompileError, ~r"cannot start with `!`, `\+`, or `M!`", fn ->
+      quote_and_eval(%Ecto.Query{} |> pre_comment("M!100000 DROP TABLE posts"))
+    end
+  end
+
   test "exclude resets the comments" do
     query = %Ecto.Query{} |> pre_comment("a") |> post_comment("b")
     assert Ecto.Query.exclude(query, :comments).comments == []

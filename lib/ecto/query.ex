@@ -2555,9 +2555,10 @@ defmodule Ecto.Query do
 
   The comment must be a compile-time literal string, so the set of comments for
   a given query stays bounded and the query remains safely cacheable. It is
-  embedded verbatim and therefore cannot contain `/*`, `*/`, or null bytes. For
-  dynamic comments, use the `:comments` option on the repository operation
-  instead. Multiple comments may be added and are rendered in order.
+  embedded verbatim and therefore cannot contain `/*`, `*/`, or null bytes, nor
+  start with `!`, `+`, or `M!`. For dynamic comments, use the `:comments`
+  option on the repository operation instead. Multiple comments may be added
+  and are rendered in order.
 
   ## Keywords example
 

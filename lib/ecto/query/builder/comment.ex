@@ -11,6 +11,11 @@ defmodule Ecto.Query.Builder.Comment do
   # block that, where comments nest, swallows the closing `*/`), plus null bytes.
   @forbidden ["*/", "/*", <<0>>]
 
+  # Placed right after `/*`, these prefixes would form MySQL/MariaDB executable
+  # comments (`/*!...*/`, `/*M!...*/`) or optimizer hints (`/*+...*/`), turning
+  # the comment into SQL that executes.
+  @forbidden_prefixes ["!", "+", "M!"]
+
   @doc """
   Escapes the comment text.
 
@@ -21,8 +26,13 @@ defmodule Ecto.Query.Builder.Comment do
   @spec escape(Macro.t()) :: Macro.t()
   def escape(comment) when is_binary(comment) do
     if String.contains?(comment, @forbidden) do
+      Builder.error!("a comment cannot contain `/*`, `*/`, or null bytes, got: `#{comment}`")
+    end
+
+    if String.starts_with?(comment, @forbidden_prefixes) do
       Builder.error!(
-        "a comment cannot contain `/*`, `*/`, or null bytes, got: `#{comment}`. "
+        "a comment cannot start with `!`, `+`, or `M!`, as MySQL and MariaDB " <>
+          "treat such comments as executable SQL or optimizer hints, got: `#{comment}`"
       )
     end
 
