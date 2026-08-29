@@ -154,7 +154,9 @@ defmodule Ecto.Repo do
       caching by passing `query_cache: true` (query operations) or an explicit `:cache_statement`
       (schema operations on SQL adapters). Comments given as query expressions via
       `Ecto.Query.pre_comment/2` and `Ecto.Query.post_comment/2` must be compile-time literals
-      and remain cached as usual.
+      and remain cached as usual. This option only applies to operations that build the statement
+      for you — raw SQL functions such as `Ecto.Adapters.SQL.query/4` (`Repo.query/4`) ignore it,
+      as you control the statement text there.
 
   ## Adapter-Specific Errors
 

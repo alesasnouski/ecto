@@ -17,14 +17,14 @@ defmodule Ecto.Query.Builder.Comment do
   @forbidden_prefixes ["!", "+", "M!"]
 
   @doc """
-  Escapes the comment text.
+  Validates the comment text, returning it unchanged.
 
-      iex> escape("my-query")
+      iex> validate!("my-query")
       "my-query"
 
   """
-  @spec escape(Macro.t()) :: Macro.t()
-  def escape(comment) when is_binary(comment) do
+  @spec validate!(Macro.t()) :: Macro.t()
+  def validate!(comment) when is_binary(comment) do
     if String.contains?(comment, @forbidden) do
       Builder.error!("a comment cannot contain `/*`, `*/`, or null bytes, got: `#{comment}`")
     end
@@ -39,7 +39,7 @@ defmodule Ecto.Query.Builder.Comment do
     comment
   end
 
-  def escape({:^, _, [_]}) do
+  def validate!({:^, _, [_]}) do
     Builder.error!(
       "interpolation is not allowed in a query comment. " <>
         "Comments must be compile-time literal strings so they stay a bounded set " <>
@@ -47,7 +47,7 @@ defmodule Ecto.Query.Builder.Comment do
     )
   end
 
-  def escape(other) do
+  def validate!(other) do
     Builder.error!("`#{Macro.to_string(other)}` is not a valid comment, it must be a literal string")
   end
 
@@ -56,7 +56,7 @@ defmodule Ecto.Query.Builder.Comment do
   """
   @spec build(:pre | :post, Macro.t(), Macro.t(), Macro.Env.t()) :: Macro.t()
   def build(position, query, expr, env) do
-    Builder.apply_query(query, __MODULE__, [position, escape(expr)], env)
+    Builder.apply_query(query, __MODULE__, [position, validate!(expr)], env)
   end
 
   @doc """

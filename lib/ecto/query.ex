@@ -2592,7 +2592,6 @@ defmodule Ecto.Query do
     Builder.Comment.build(:post, query, expr, __CALLER__)
   end
 
-
   @doc ~S"""
   An update query expression.
 
