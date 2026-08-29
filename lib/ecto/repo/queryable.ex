@@ -39,7 +39,7 @@ defmodule Ecto.Repo.Queryable do
     {query, opts} = repo.prepare_query(:stream, query, opts)
     query = query |> attach_prefix(opts) |> attach_comments(opts)
 
-    query_cache? = Keyword.get(opts, :query_cache, true)
+    query_cache? = query_cache?(opts)
 
     {query_meta, prepared, cast_params, dump_params} =
       Planner.query(query, :all, cache, adapter, 0, query_cache?)
@@ -218,13 +218,17 @@ defmodule Ecto.Repo.Queryable do
 
   ## Helpers
 
+  defp query_cache?(opts) do
+    Keyword.get_lazy(opts, :query_cache, fn -> Keyword.get(opts, :comments, []) == [] end)
+  end
+
   defp execute(operation, name, query, {adapter_meta, opts} = tuplet) do
     %{adapter: adapter, cache: cache, repo: repo} = adapter_meta
 
     {query, opts} = repo.prepare_query(operation, query, opts)
     query = query |> attach_prefix(opts) |> attach_comments(opts)
 
-    query_cache? = Keyword.get(opts, :query_cache, true)
+    query_cache? = query_cache?(opts)
 
     {query_meta, prepared, cast_params, dump_params} =
       Planner.query(query, operation, cache, adapter, 0, query_cache?)

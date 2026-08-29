@@ -146,12 +146,15 @@ defmodule Ecto.Repo do
       monitoring tools. `:pre` comments are rendered before the statement (e.g.
       `/* import_users */ INSERT ...`) so they survive truncation of long statements in logs;
       `:post` comments are rendered after it. Strings are embedded verbatim and therefore cannot
-      contain `/*`, `*/`, or null bytes. Comments become part of the query cache key, so prefer
-      stable identifiers per call site over highly dynamic values such as per-request ids. If you
-      do pass dynamic comments to a query operation (`all`/`update_all`/`delete_all`), combine them
-      with `query_cache: false` so the unbounded set of comments does not grow Ecto's query cache
-      and the adapter's prepared statements. For query expressions you can also use
-      `Ecto.Query.pre_comment/2` and `Ecto.Query.post_comment/2`, which must be static.
+      contain `/*`, `*/`, or null bytes. Because this option takes runtime values, passing it
+      disables caching for that call, making dynamic comments (such as per-request ids) safe by
+      default: query operations (`all`/`update_all`/`delete_all`) skip Ecto's query cache, and
+      schema operations (`insert`/`update`/`delete`/`insert_all`) make SQL adapters skip their
+      default prepared statement caching. If your comments are static, you can keep
+      caching by passing `query_cache: true` (query operations) or an explicit `:cache_statement`
+      (schema operations on SQL adapters). Comments given as query expressions via
+      `Ecto.Query.pre_comment/2` and `Ecto.Query.post_comment/2` must be compile-time literals
+      and remain cached as usual.
 
   ## Adapter-Specific Errors
 
